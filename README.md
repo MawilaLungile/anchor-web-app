@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 # Anchor (web)
@@ -116,3 +117,6 @@ src/main/resources
 ## Licences
 
 Third-party assets keep their own licences (see `docs/licenses`): Inter (SIL Open Font License 1.1), Material Icons (Apache 2.0), StevenBlack/hosts blocklist (MIT).
+=======
+# anchor-web-app
+>>>>>>> ce08236702fb2bf43b479dbd971c6619ceb1fc3e
