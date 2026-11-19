@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Today')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('today')}"></aside>
+
+    <main class="main">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="page-head">
+                <div>
+                    <span class="caption" th:text="${dateText}">Tuesday, 17 November</span>
+                    <h1 class="h1" th:text="${greeting}">Good evening</h1>
+                </div>
+                <a class="card tight row" th:href="@{/energy}" style="border-radius: 16px; padding: 10px 14px;">
+                    <th:block th:if="${energyLevel != null}">
+                        <span class="i" th:style="'color:' + ${energyLevel.color()}" th:text="${energyLevel.icon()}">bolt</span>
+                        <span>
+                            <span class="strong" th:text="${energyLevel.name()}">Good</span><br>
+                            <span class="caption small" th:text="${energyWhen}">Checked in</span>
+                        </span>
+                    </th:block>
+                    <th:block th:if="${energyLevel == null}">
+                        <span class="i" style="color: var(--ember)">bolt</span>
+                        <span>
+                            <span class="strong">Check in</span><br>
+                            <span class="caption small">How's your energy?</span>
+                        </span>
+                    </th:block>
+                </a>
+            </div>
+
+            <!-- Running session -->
+            <a class="banner" th:if="${activeSession != null}" th:href="@{/focus}">
+                <span class="i">timelapse</span>
+                <span class="grow">
+                    <span class="strong">Focus session running</span><br>
+                    <span class="small" style="opacity: .85" th:text="${activeSession.intention}">Intention</span>
+                </span>
+                <span class="strong" data-countdown th:attr="data-countdown=${activeEndMillis}">--:--</span>
+                <span class="i">chevron_right</span>
+            </a>
+
+            <div class="columns">
+                <!-- ============ Primary ============ -->
+                <div class="stack" style="gap: 24px;">
+
+                    <!-- The One Thing -->
+                    <section class="hero ember">
+                        <div class="stack" th:if="${oneThing != null}">
+                            <div class="row"><span class="i" style="font-size: 16px;">flag</span><span class="overline">The One Thing</span></div>
+                            <div class="row" style="align-items: flex-start;">
+                                <h2 class="display grow" style="font-size: 26px;" th:classappend="${oneThing.done} ? 'strike'"
+                                    th:text="${oneThing.title}">Finish the memo</h2>
+                                <form th:action="@{/tasks/{id}/toggle(id=${oneThing.id})}" method="post">
+                                    <button class="icon-btn glass" type="submit" style="width: 50px; height: 50px; border-radius: 25px; background: rgba(255,255,255,.2); color: #fff;"
+                                            th:attr="aria-label=${oneThing.done} ? 'Mark as not done' : 'Mark as done'">
+                                        <span class="i" style="font-size: 30px;" th:text="${oneThing.done} ? 'check_circle' : 'radio_button_unchecked'">radio_button_unchecked</span>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="soft small" th:text="${oneThing.metaText}">Deep work · 90 min</p>
+                            <div class="row wrap">
+                                <a class="btn white sm" th:unless="${oneThing.done}" th:href="@{/focus(taskId=${oneThing.id})}"><span class="i">play_arrow</span>Focus on this</a>
+                                <a class="btn glass sm" th:href="@{/tasks/{id}/edit(id=${oneThing.id})}">Edit</a>
+                            </div>
+                        </div>
+
+                        <div class="stack" th:if="${oneThing == null}">
+                            <span class="overline">The One Thing</span>
+                            <h2 class="display" style="font-size: 24px;">If you did only one thing today, what would make it a success?</h2>
+                            <div><a class="btn white sm" th:href="@{/tasks/new(slot='ONE_THING')}"><span class="i">add</span>Choose your One Thing</a></div>
+                        </div>
+                    </section>
+
+                    <!-- Nice to have -->
+                    <section class="stack-sm">
+                        <div class="row between"><h2 class="h3">Nice to have</h2><span class="caption small">Up to three</span></div>
+                        <th:block th:each="task : ${niceToHaves}"><div th:replace="~{fragments/tasks :: row(${task})}"></div></th:block>
+                        <a class="add-dashed" th:if="${canAddNice}" th:href="@{/tasks/new(slot='NICE_TO_HAVE')}"><span class="i">add</span>Add a nice-to-have</a>
+                    </section>
+
+                    <!-- Everything else -->
+                    <section class="stack-sm">
+                        <div class="row between"><h2 class="h3">Everything else</h2><a class="link" th:href="@{/tasks/new(slot='OTHER')}">Add</a></div>
+                        <th:block th:each="task : ${others}"><div th:replace="~{fragments/tasks :: row(${task})}"></div></th:block>
+                        <p class="caption" th:if="${#lists.isEmpty(others)}">Errands, admin and quick wins live here. Keep the important work up top.</p>
+                    </section>
+                </div>
+
+                <!-- ============ Secondary ============ -->
+                <div class="stack">
+
+                    <!-- Day progress -->
+                    <section class="card row" style="gap: 18px;">
+                        <div class="ring" style="width: 92px; height: 92px;">
+                            <svg viewBox="0 0 100 100" aria-hidden="true">
+                                <circle class="bg" cx="50" cy="50" r="42"></circle>
+                                <circle class="fg" cx="50" cy="50" r="42"
+                                        th:attr="stroke-dasharray=${dayRing.dash()},stroke-dashoffset=${dayRing.offset()}"></circle>
+                            </svg>
+                            <div class="center"><span class="strong" th:text="${dayRing.percent()} + '%'">0%</span></div>
+                        </div>
+                        <div class="grow stack-sm">
+                            <div><span class="overline">Today</span><h2 class="h2" th:text="${progressText}">0 of 0 done</h2></div>
+                            <div class="grid-2">
+                                <div><div class="strong" th:text="${focusToday}">0 min</div><div class="caption small">focused</div></div>
+                                <div><div class="strong" th:text="${keptToday}">0</div><div class="caption small">commitments kept</div></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Carry over -->
+                    <section class="card row" th:if="${overdueCount > 0}" style="padding: 16px;">
+                        <span class="tile"><span class="i">history</span></span>
+                        <div class="grow">
+                            <div class="strong" th:text="${overdueCount} + ' unfinished from this week'">2 unfinished</div>
+                            <div class="caption small">Bring them into today's plan</div>
+                        </div>
+                        <form th:action="@{/tasks/carry-over}" method="post"><button class="link" type="submit">Move</button></form>
+                    </section>
+
+                    <!-- Peak -->
+                    <section class="card stack-sm" th:if="${peak != null}">
+                        <div class="row"><span class="tile gold"><span class="i">bolt</span></span><h2 class="h3" th:text="'Your peak: ' + ${peak.text()}">Your peak</h2></div>
+                        <p class="caption" th:text="${peakAdvice}">Advice</p>
+                        <a class="link small" th:href="@{/insights}">See your energy map</a>
+                    </section>
+                    <section class="card stack-sm" th:if="${peak == null}">
+                        <div class="row"><span class="tile gold"><span class="i">bolt</span></span><h2 class="h3">Find your peak hours</h2></div>
+                        <p class="caption">Check in on your energy a few times a day. Within a week, Anchor shows when you do your best work.</p>
+                        <a class="link small" th:href="@{/energy}">Check in now</a>
+                    </section>
+
+                    <!-- Evening shutdown -->
+                    <section class="card stack-sm" th:if="${showShutdown}">
+                        <div class="row"><span class="tile mist"><span class="i">bedtime</span></span><h2 class="h3">Evening shutdown</h2></div>
+                        <p class="caption" th:text="${dayClosed} ? 'Day closed. Rest well, tomorrow\'s plan is ready.' : 'Review today, carry over what\'s unfinished and switch off properly.'">Review</p>
+                        <a class="btn ghost" th:unless="${dayClosed}" th:href="@{/review}">Close the day</a>
+                    </section>
+
+                    <!-- Urge -->
+                    <a class="card row" th:href="@{/urge}" style="padding: 16px;">
+                        <span class="tile sage"><span class="i">self_improvement</span></span>
+                        <div class="grow">
+                            <div class="strong">Feeling a pull?</div>
+                            <div class="caption small">Take a 60-second pause</div>
+                        </div>
+                        <span class="i muted">chevron_right</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<a class="fab" th:href="@{/tasks/new}" aria-label="Add task"><span class="i">add</span></a>
+<nav th:replace="~{fragments/layout :: tabs('today')}"></nav>
+<div th:replace="~{fragments/layout :: toast}"></div>
+</body>
+</html>

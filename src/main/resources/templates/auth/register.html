@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="dark">
+<head th:replace="~{fragments/layout :: head('Create account')}"></head>
+<body>
+<main class="auth">
+    <div class="panel">
+        <div class="row">
+            <span class="brand-mark"><span class="i">anchor</span></span>
+            <span class="brand-name">Anchor</span>
+        </div>
+        <div class="stack-sm">
+            <h1 class="h1">Protect your attention.</h1>
+            <p class="caption">Create a free account. Your data stays private to you.</p>
+        </div>
+
+        <form class="stack" th:action="@{/register}" th:object="${form}" method="post" novalidate>
+            <input type="hidden" th:field="*{timeZone}">
+            <div class="stack-sm">
+                <label class="label" for="displayName">What should we call you?</label>
+                <div class="field"><span class="i">person</span><input id="displayName" type="text" th:field="*{displayName}" autocomplete="given-name" maxlength="60" required></div>
+                <p class="error" th:if="${#fields.hasErrors('displayName')}" th:errors="*{displayName}"></p>
+            </div>
+            <div class="stack-sm">
+                <label class="label" for="email">Email</label>
+                <div class="field"><span class="i">mail</span><input id="email" type="email" th:field="*{email}" autocomplete="email" required></div>
+                <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            </div>
+            <div class="stack-sm">
+                <label class="label" for="password">Password</label>
+                <div class="field"><span class="i">lock</span><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+                <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                <p class="caption small">At least 8 characters.</p>
+            </div>
+            <button class="btn block" type="submit">Create account</button>
+        </form>
+
+        <p class="caption">Already have an account? <a class="link" th:href="@{/login}">Sign in</a></p>
+    </div>
+</main>
+</body>
+</html>

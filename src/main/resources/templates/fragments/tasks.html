@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- A task row: tick to complete, tap the text to edit. -->
+<div th:fragment="row(task)" class="task" th:classappend="${task.done} ? 'done'">
+    <form th:action="@{/tasks/{id}/toggle(id=${task.id})}" method="post">
+        <button class="check" type="submit" th:attr="aria-label=${task.done} ? 'Mark as not done' : 'Mark as done'">
+            <span class="i" th:text="${task.done} ? 'check_circle' : 'radio_button_unchecked'">radio_button_unchecked</span>
+        </button>
+    </form>
+    <a class="body" th:href="@{/tasks/{id}/edit(id=${task.id})}">
+        <div class="title" th:text="${task.title}">Task</div>
+        <div class="caption small" th:text="${task.metaText}">Deep work · 30 min</div>
+    </a>
+    <a class="chev" th:href="@{/tasks/{id}/edit(id=${task.id})}" aria-label="Edit"><span class="i">chevron_right</span></a>
+</div>
+</body>
+</html>

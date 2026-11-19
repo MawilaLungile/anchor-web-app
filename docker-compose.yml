@@ -1,0 +1,38 @@
+# Production-style stack: Anchor + PostgreSQL.
+#   docker compose up --build
+# Then open http://localhost:8080
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: anchor
+      POSTGRES_USER: anchor
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-change-me}
+    volumes:
+      - anchor-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anchor -d anchor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://db:5432/anchor
+      DATABASE_USERNAME: anchor
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-change-me}
+      ANCHOR_REMEMBER_ME_KEY: ${ANCHOR_REMEMBER_ME_KEY:-replace-with-a-long-random-string}
+      # Remove this line when serving over HTTPS behind a proxy:
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: "false"
+    ports:
+      - "8080:8080"
+
+volumes:
+  anchor-db:

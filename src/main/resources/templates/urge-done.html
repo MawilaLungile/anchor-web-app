@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Well done')}"></head>
+<body>
+<main class="calm">
+    <div class="wrap">
+        <span class="i" style="font-size: 48px; color: var(--sage);">spa</span>
+
+        <div class="stack-sm" th:if="${resisted}">
+            <h1 class="display" style="font-size: 30px; color: #fff;">You rode the wave.</h1>
+            <p class="soft" th:text="${fromSession} ? 'Your commitment is still running. Head back and finish strong.' : 'That is real strength. Every urge you ride out makes the next one weaker.'">Well done.</p>
+        </div>
+
+        <div class="stack-sm" th:unless="${resisted}">
+            <h1 class="display" style="font-size: 30px; color: #fff;">Thank you for being honest.</h1>
+            <p class="soft" th:text="'Noticing “' + ${#strings.toLowerCase(trigger)} + '” as a trigger is how change starts. Try one of these next time:'">Noticing</p>
+        </div>
+
+        <div class="stack-sm">
+            <div class="idea" th:each="idea : ${ideas}">
+                <span class="i" style="color: var(--sage);" th:text="${idea.icon()}">directions_walk</span>
+                <div>
+                    <div class="strong" style="color: #fff;" th:text="${idea.title()}">Title</div>
+                    <div class="small soft" th:text="${idea.detail()}">Detail</div>
+                </div>
+            </div>
+        </div>
+
+        <form th:if="${offerReset}" th:action="@{/shield/reset-streak}" method="post" class="stack-sm"
+              data-confirm="Reset your clean streak? Your longest streak stays on record.">
+            <p class="soft small">Want to keep your streak honest? Your longest streak stays on record.</p>
+            <button class="btn block glass" type="submit">Reset my streak</button>
+        </form>
+
+        <a class="btn block sage" th:href="${fromSession} ? @{/focus} : @{/}">Back to my day</a>
+    </div>
+</main>
+</body>
+</html>

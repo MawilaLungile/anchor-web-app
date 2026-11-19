@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Insights')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('insights')}"></aside>
+    <main class="main">
+        <div class="container">
+
+            <div class="page-head">
+                <div>
+                    <h1 class="h1">Insights</h1>
+                    <p class="caption">How you focus, when you're sharpest, and what pulls you away.</p>
+                </div>
+                <div class="chips">
+                    <a class="seg" th:href="@{/insights(days=7)}" th:classappend="${range == 7} ? 'active'">7 days</a>
+                    <a class="seg" th:href="@{/insights(days=30)}" th:classappend="${range == 30} ? 'active'">30 days</a>
+                </div>
+            </div>
+
+            <!-- Story -->
+            <section class="hero coal stack-sm">
+                <div class="row"><span class="i" style="color: var(--ember); font-size: 18px;">auto_graph</span><span class="overline" style="color: #E0B48A;">Your story</span></div>
+                <h2 class="display" style="font-size: 25px; color: #F5EFE6;" th:text="${headline}">Headline</h2>
+                <p style="color: #D9CDBF;" th:text="${story}">Story</p>
+            </section>
+
+            <!-- KPIs -->
+            <div class="kpis">
+                <div class="card stack-sm" style="padding: 16px;">
+                    <span class="i" style="color: var(--ember)">center_focus_strong</span>
+                    <div class="metric" th:text="${focusHours}">0 h</div>
+                    <div class="caption small">Focus time</div>
+                </div>
+                <div class="card stack-sm" style="padding: 16px;">
+                    <span class="i" style="color: var(--sage)">check_circle</span>
+                    <div class="metric" th:text="${keptRate}">–</div>
+                    <div class="caption small">Commitments kept</div>
+                </div>
+                <div class="card stack-sm" style="padding: 16px;">
+                    <span class="i" style="color: var(--gold)">task_alt</span>
+                    <div class="metric" th:text="${tasksDone}">0</div>
+                    <div class="caption small">Tasks done</div>
+                </div>
+                <div class="card stack-sm" style="padding: 16px;">
+                    <span class="i" style="color: var(--mist)">waves</span>
+                    <div class="metric" th:text="${urges}">0</div>
+                    <div class="caption small">Urges ridden out</div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <!-- ============ Primary ============ -->
+                <div class="stack">
+                    <section class="card stack">
+                        <div class="row between">
+                            <div>
+                                <h2 class="h3">Focus time</h2>
+                                <p class="caption small">Minutes of focus per day</p>
+                            </div>
+                            <span class="strong" th:text="${focusStreak} + ' streak'">0 days streak</span>
+                        </div>
+                        <div class="bars">
+                            <div class="bar" th:each="b : ${bars}" th:classappend="(${b.highlight()} ? 'peak ' : '') + (${b.today()} ? 'today' : '')"
+                                 th:title="${b.value()}">
+                                <div class="track"><div class="fill" th:style="'height:' + ${b.heightPercent()} + '%'"></div></div>
+                                <span class="lbl" th:text="${b.label()}">Mon</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card stack">
+                        <div>
+                            <h2 class="h3">Energy map</h2>
+                            <p class="caption small">Average energy by weekday and hour, last 4 weeks</p>
+                        </div>
+                        <div class="heatmap">
+                            <th:block th:each="row : ${heatRows}">
+                                <span class="day" th:text="${row.label()}">Mon</span>
+                                <span class="cell" th:each="c : ${row.cells()}" th:title="${c.title()}"
+                                      th:style="${c.color() != null} ? 'background:' + ${c.color()} : null"></span>
+                            </th:block>
+                            <span></span>
+                            <span class="hour" th:each="h : ${hourLabels}" th:text="${h}"></span>
+                        </div>
+                        <div class="legend">Drained <i class="c1"></i><i class="c2"></i><i class="c3"></i> Peak</div>
+                        <div class="grid-2">
+                            <div class="card tight" style="background: var(--surface-2); border: 0;">
+                                <div class="overline" style="color: var(--sage-deep)">Peak</div>
+                                <div class="strong" th:text="${peakText}">–</div>
+                            </div>
+                            <div class="card tight" style="background: var(--surface-2); border: 0;">
+                                <div class="overline" style="color: var(--clay)">Dip</div>
+                                <div class="strong" th:text="${dipText}">–</div>
+                            </div>
+                        </div>
+                        <p class="caption" th:text="${energyAdvice}">Advice</p>
+                    </section>
+                </div>
+
+                <!-- ============ Secondary ============ -->
+                <div class="stack">
+                    <section class="card stack">
+                        <div>
+                            <h2 class="h3">What triggers urges</h2>
+                            <p class="caption small">From your urge-timer reflections</p>
+                        </div>
+                        <div class="stack-sm" th:each="t : ${triggers}">
+                            <div class="row">
+                                <span class="i muted" style="font-size: 20px;" th:text="${t.icon()}">waves</span>
+                                <span class="strong grow" th:text="${t.name()}">Bored</span>
+                                <span class="caption small" th:text="${t.count() == 1} ? '1 time' : ${t.count()} + ' times'">3 times</span>
+                            </div>
+                            <div class="meter"><div th:style="'width:' + ${t.percent()} + '%'"></div></div>
+                        </div>
+                        <p class="caption" th:if="${#lists.isEmpty(triggers)}">No urges logged in this period. Use the urge timer whenever you feel a pull and patterns will appear here.</p>
+                    </section>
+
+                    <section class="card stack-sm">
+                        <div>
+                            <h2 class="h3">Why sessions end early</h2>
+                            <p class="caption small">Your own words, so you can plan around them</p>
+                        </div>
+                        <div class="card tight" th:each="r : ${reasons}" style="background: var(--surface-2); border: 0;" th:text="${r}">Reason</div>
+                        <p class="caption" th:if="${#lists.isEmpty(reasons)}">Every commitment in this period was kept.</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('insights')}"></nav>
+</body>
+</html>

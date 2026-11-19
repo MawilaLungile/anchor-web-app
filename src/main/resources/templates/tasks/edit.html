@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('today')}"></aside>
+    <main class="main">
+        <div class="container narrow">
+
+            <div class="row between">
+                <a class="icon-btn" th:href="@{/}" aria-label="Close"><span class="i">close</span></a>
+                <h1 class="h3" th:text="${pageTitle}">New task</h1>
+                <form th:if="${taskId != null}" th:action="@{/tasks/{id}/delete(id=${taskId})}" method="post" data-confirm="Delete this task?">
+                    <button class="icon-btn" type="submit" style="color: var(--clay)" aria-label="Delete"><span class="i">delete</span></button>
+                </form>
+                <span th:if="${taskId == null}" style="width: 44px"></span>
+            </div>
+
+            <form class="stack" th:action="@{/tasks}" th:object="${form}" method="post" style="gap: 22px;">
+                <input type="hidden" name="id" th:if="${taskId != null}" th:value="${taskId}">
+
+                <div class="stack-sm">
+                    <div class="field lg"><input type="text" th:field="*{title}" placeholder="What needs doing?" maxlength="200" autofocus required></div>
+                    <p class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+                    <div class="field"><textarea th:field="*{notes}" placeholder="Notes, links or the first small step (optional)" maxlength="2000"></textarea></div>
+                </div>
+
+                <div class="stack-sm">
+                    <span class="overline">Priority</span>
+                    <div class="chips">
+                        <label class="chip" th:each="s : ${slots}">
+                            <input type="radio" name="slot" th:value="${s.name()}" th:checked="${form.slot == s}">
+                            <span>
+                                <span class="i" th:text="${s.name() == 'ONE_THING'} ? 'flag' : (${s.name() == 'NICE_TO_HAVE'} ? 'star' : 'task_alt')">flag</span>
+                                <span th:text="${s.label}">Label</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stack-sm">
+                    <span class="overline">Kind of work</span>
+                    <div class="chips">
+                        <label class="chip"><input type="radio" name="deep" value="true" th:checked="${form.deep}"><span><span class="i">psychology</span>Deep work</span></label>
+                        <label class="chip"><input type="radio" name="deep" value="false" th:checked="${!form.deep}"><span><span class="i">coffee</span>Light task</span></label>
+                    </div>
+                    <p class="caption small">Deep work belongs in your peak hours; light tasks suit your dips.</p>
+                </div>
+
+                <div class="stack-sm">
+                    <span class="overline">Estimate</span>
+                    <div class="chips">
+                        <label class="chip" th:each="m : ${estimates}">
+                            <input type="radio" name="estimateMinutes" th:value="${m}" th:checked="${form.estimateMinutes == m}">
+                            <span th:text="${m} + ' min'">30 min</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stack-sm">
+                    <span class="overline">When</span>
+                    <div class="chips">
+                        <label class="chip"><input type="radio" name="when" value="today" th:checked="${form.when == 'today'}"><span>Today</span></label>
+                        <label class="chip"><input type="radio" name="when" value="tomorrow" th:checked="${form.when == 'tomorrow'}"><span>Tomorrow</span></label>
+                        <label class="chip"><input type="radio" name="when" value="date" th:checked="${form.when == 'date'}"><span><span class="i">event</span>Pick a date</span></label>
+                    </div>
+                    <div id="date-row" class="field">
+                        <span class="i">event</span>
+                        <input type="date" th:field="*{date}">
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+                </div>
+
+                <button class="btn block" type="submit" th:text="${taskId == null} ? 'Add task' : 'Save changes'">Add task</button>
+            </form>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('today')}"></nav>
+</body>
+</html>

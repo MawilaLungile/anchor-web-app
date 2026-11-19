@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="dark">
+<head th:replace="~{fragments/layout :: head('Welcome')}"></head>
+<body>
+<main class="auth">
+    <div class="welcome">
+        <div class="stack-sm">
+            <div class="row">
+                <span class="brand-mark"><span class="i">anchor</span></span>
+                <span class="brand-name">Anchor</span>
+            </div>
+            <h1 class="display" style="font-size: clamp(32px, 6vw, 52px); line-height: 1.05; margin-top: 18px;"
+                th:text="'Welcome, ' + ${name} + '.'">Welcome.</h1>
+            <p class="caption" style="font-size: 17px; max-width: 620px;">
+                Most apps organise your tasks. Anchor guards the thing that actually gets them done: your attention.
+            </p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <span class="tile ember"><span class="i">flag</span></span>
+                <h2 class="h3">The One Thing</h2>
+                <p class="caption">Start each day with the single task that would make it a success. Everything else comes second.</p>
+            </div>
+            <div class="feature">
+                <span class="tile ember"><span class="i">center_focus_strong</span></span>
+                <h2 class="h3">Focus is a promise</h2>
+                <p class="caption">Commit to a session. Quitting early means writing down why, and Anchor shows you the pattern.</p>
+            </div>
+            <div class="feature">
+                <span class="tile gold"><span class="i">bolt</span></span>
+                <h2 class="h3">Your energy map</h2>
+                <p class="caption">Two-second check-ins reveal your peak hours, so the hardest work lands when you're sharpest.</p>
+            </div>
+            <div class="feature">
+                <span class="tile sage"><span class="i">shield</span></span>
+                <h2 class="h3">The shield</h2>
+                <p class="caption">Ride out urges with a guided pause, keep a clean streak, and block 76,000+ adult sites on your devices.</p>
+            </div>
+        </div>
+
+        <form th:action="@{/welcome}" method="post" class="stack" style="max-width: 420px;">
+            <button class="btn block" type="submit" name="mode" value="fresh">Start fresh</button>
+            <button class="btn block glass" type="submit" name="mode" value="sample">Explore with three weeks of sample data</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

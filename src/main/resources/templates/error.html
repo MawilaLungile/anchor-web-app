@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="dark">
+<head th:replace="~{fragments/layout :: head('Something went wrong')}"></head>
+<body>
+<main class="auth">
+    <div class="panel">
+        <span class="brand-mark"><span class="i">anchor</span></span>
+        <div class="stack-sm">
+            <span class="overline" th:text="'Error ' + ${status}">Error</span>
+            <h1 class="h1">Something went off course.</h1>
+            <p class="caption">Sorry about that. It's been logged. Try again, or head back to your day.</p>
+        </div>
+        <a class="btn block" th:href="@{/}">Back to Today</a>
+    </div>
+</main>
+</body>
+</html>

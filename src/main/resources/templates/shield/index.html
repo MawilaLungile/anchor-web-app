@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Shield')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('shield')}"></aside>
+    <main class="main">
+        <div class="container">
+
+            <div class="page-head">
+                <div>
+                    <h1 class="h1">Shield</h1>
+                    <p class="caption">Ride out urges, keep a clean streak, and block what you don't want on every device.</p>
+                </div>
+            </div>
+
+            <div class="columns">
+                <!-- ============ Primary ============ -->
+                <div class="stack">
+
+                    <!-- Streak hero -->
+                    <section class="hero forest">
+                        <div class="row" style="gap: 22px; flex-wrap: wrap;">
+                            <div class="ring" style="width: 150px; height: 150px;">
+                                <svg viewBox="0 0 100 100" aria-hidden="true">
+                                    <circle class="bg glass" cx="50" cy="50" r="42"></circle>
+                                    <circle class="fg white" cx="50" cy="50" r="42"
+                                            th:attr="stroke-dasharray=${streakRing.dash()},stroke-dashoffset=${streakRing.offset()}"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div>
+                                        <div class="display" style="font-size: 44px; line-height: 1;" th:text="${streakDays}">0</div>
+                                        <div class="small soft" th:text="${streakUnit}">days clean</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grow stack-sm" style="min-width: 200px;">
+                                <div class="row"><span class="i" style="color: #FFD9A8;">local_fire_department</span><h2 class="h2">Clean streak</h2></div>
+                                <p class="soft" th:text="${milestoneText}">Milestone</p>
+                                <p class="soft small" th:text="${longestText}">Longest</p>
+                                <form th:action="@{/shield/reset-streak}" method="post"
+                                      data-confirm="Reset your streak? Slips are part of change, not the end of it. Your longest streak is saved.">
+                                    <button class="link small" type="submit" style="color: #D3EEDF; text-decoration: underline;">Reset after a slip</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Urge -->
+                    <a class="card row" th:href="@{/urge}" style="background: rgba(111, 207, 151, .12); border-color: transparent;">
+                        <span class="tile" style="background: var(--sage); color: #123326;"><span class="i">self_improvement</span></span>
+                        <div class="grow">
+                            <div class="h3">I'm feeling an urge</div>
+                            <div class="caption small" th:text="${urgesText}">Urges</div>
+                        </div>
+                        <span class="i muted">chevron_right</span>
+                    </a>
+
+                    <!-- Protect your devices -->
+                    <section class="card stack">
+                        <div class="row"><span class="tile ember"><span class="i">devices</span></span><h2 class="h3">Protect your devices</h2></div>
+                        <p class="caption">
+                            A website can't filter your device by itself, so Anchor gives you two proven ways to block adult content
+                            everywhere. Use either, or both.
+                        </p>
+
+                        <div class="stack-sm">
+                            <span class="overline">1 · Family DNS (recommended, works on every device)</span>
+                            <p class="caption">Cloudflare for Families blocks adult content and malware for free at the network level.</p>
+                            <ul class="steps">
+                                <li><strong>Android:</strong> Settings → Network &amp; internet → Private DNS → set hostname to <span class="code">family.cloudflare-dns.com</span></li>
+                                <li><strong>Windows:</strong> Settings → Network → your connection → DNS server assignment → Manual → <span class="code">1.1.1.3</span> and <span class="code">1.0.0.3</span></li>
+                                <li><strong>iPhone / iPad:</strong> Settings → Wi-Fi → (i) → Configure DNS → Manual → <span class="code">1.1.1.3</span> and <span class="code">1.0.0.3</span></li>
+                                <li><strong>Whole home:</strong> set the same two addresses as the DNS servers in your router</li>
+                            </ul>
+                        </div>
+
+                        <hr class="divider">
+
+                        <div class="stack-sm">
+                            <span class="overline">2 · Hosts file (Windows, macOS, Linux)</span>
+                            <p class="caption" th:text="'Download a hosts file with ' + ${adultCount} + ' adult domains plus your always-blocked list, then add it to your system hosts file.'">Download</p>
+                            <div class="row wrap">
+                                <a class="btn sm" th:href="@{/shield/hosts.txt(adult=true,focus=false)}"><span class="i">download</span>Download hosts file</a>
+                                <a class="btn sm ghost" th:href="@{/shield/hosts.txt(adult=true,focus=true)}">Include distraction list</a>
+                            </div>
+                            <p class="caption small">Windows: <span class="code">C:\Windows\System32\drivers\etc\hosts</span> (edit as administrator). macOS/Linux: <span class="code">/etc/hosts</span>.</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ============ Secondary ============ -->
+                <div class="stack">
+                    <section class="card flush">
+                        <h2 class="h3" style="padding: 18px 18px 6px;">Block lists</h2>
+                        <form th:action="@{/shield/update-list}" method="post">
+                            <button class="list-row" type="submit" title="Check for an updated list">
+                                <span class="tile clay"><span class="i">block</span></span>
+                                <span class="grow">
+                                    <span class="strong">Adult content</span><br>
+                                    <span class="caption small" th:text="${adultCount} + ' domains · community-maintained'">domains</span><br>
+                                    <span class="caption small" th:text="${listUpdated}">Bundled list</span>
+                                </span>
+                                <span class="i muted">refresh</span>
+                            </button>
+                        </form>
+                        <a class="list-row" th:href="@{/shield/sites(list='ALWAYS')}">
+                            <span class="tile ember"><span class="i">lock</span></span>
+                            <span class="grow">
+                                <span class="strong">Always blocked</span><br>
+                                <span class="caption small" th:text="${alwaysCount} + ' personal sites · removal takes ' + ${coolingText}">sites</span>
+                            </span>
+                            <span class="i muted">chevron_right</span>
+                        </a>
+                        <a class="list-row" th:href="@{/shield/sites(list='FOCUS')}">
+                            <span class="tile mist"><span class="i">center_focus_strong</span></span>
+                            <span class="grow">
+                                <span class="strong">Distractions</span><br>
+                                <span class="caption small" th:text="${focusCount} + ' sites for focus time'">sites</span>
+                            </span>
+                            <span class="i muted">chevron_right</span>
+                        </a>
+                    </section>
+
+                    <section class="card stack-sm">
+                        <div class="row"><span class="tile"><span class="i">hourglass_top</span></span><h2 class="h3">Cooling-off lock</h2></div>
+                        <p class="caption" th:text="'Removing a site from your always-blocked list takes a ' + ${coolingText} + ' cooling-off period, then a 15-minute window to confirm. Impulses pass; protection stays.'">Cooling-off</p>
+                        <a class="link small" th:href="@{/settings}">Change the cooling-off period</a>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('shield')}"></nav>
+<div th:replace="~{fragments/layout :: toast}"></div>
+</body>
+</html>

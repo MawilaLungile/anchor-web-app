@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="dark">
+<head th:replace="~{fragments/layout :: head('Not found')}"></head>
+<body>
+<main class="auth">
+    <div class="panel">
+        <span class="brand-mark"><span class="i">anchor</span></span>
+        <div class="stack-sm">
+            <span class="overline">404</span>
+            <h1 class="h1">Nothing anchored here.</h1>
+            <p class="caption">The page you're looking for doesn't exist, or it isn't yours to see.</p>
+        </div>
+        <a class="btn block" th:href="@{/}">Back to Today</a>
+    </div>
+</main>
+</body>
+</html>

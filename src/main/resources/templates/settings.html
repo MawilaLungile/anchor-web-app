@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Settings')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('settings')}"></aside>
+    <main class="main">
+        <div class="container">
+
+            <div class="page-head">
+                <div>
+                    <h1 class="h1">Settings</h1>
+                    <p class="caption" th:text="'Member since ' + ${memberSince}">Member since</p>
+                </div>
+            </div>
+
+            <div class="columns even">
+                <!-- ============ Primary ============ -->
+                <div class="stack">
+
+                    <form class="card stack" th:action="@{/settings/profile}" method="post">
+                        <div class="row">
+                            <span class="avatar" style="width: 56px; height: 56px; border-radius: 18px; font-size: 20px;" th:text="${me.initials()}">A</span>
+                            <div>
+                                <div class="h3" th:text="${user.displayName}">Name</div>
+                                <div class="caption small" th:text="${user.email}">email</div>
+                            </div>
+                        </div>
+                        <div class="stack-sm">
+                            <label class="label" for="displayName">Display name</label>
+                            <div class="field"><input id="displayName" name="displayName" type="text" maxlength="60" th:value="${user.displayName}" required></div>
+                        </div>
+                        <div class="stack-sm">
+                            <label class="label" for="timeZone">Time zone</label>
+                            <div class="field">
+                                <span class="i">schedule</span>
+                                <select id="timeZone" name="timeZone">
+                                    <option th:each="z : ${zones}" th:value="${z}" th:text="${z}" th:selected="${z == user.timeZone}">Zone</option>
+                                </select>
+                            </div>
+                            <p class="caption small">Used for "today", your energy map and the evening shutdown.</p>
+                        </div>
+                        <button class="btn" type="submit">Save profile</button>
+                    </form>
+
+                    <form class="card stack" th:action="@{/settings/preferences}" method="post">
+                        <h2 class="h3">Preferences</h2>
+                        <div class="stack-sm">
+                            <span class="caption">Theme</span>
+                            <div class="chips">
+                                <label class="chip" th:each="o : ${themes}">
+                                    <input type="radio" name="theme" th:value="${o.value()}" th:checked="${o.selected()}">
+                                    <span><span class="i" th:text="${o.icon()}">contrast</span><span th:text="${o.label()}">System</span></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="stack-sm">
+                            <span class="caption">Default focus length</span>
+                            <div class="chips">
+                                <label class="chip" th:each="o : ${focusLengths}">
+                                    <input type="radio" name="focusMinutes" th:value="${o.value()}" th:checked="${o.selected()}">
+                                    <span th:text="${o.label()}">50 min</span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="row" style="cursor: pointer;">
+                            <span class="grow">
+                                <span class="strong">Use my distraction list by default</span><br>
+                                <span class="caption small">When starting a focus session</span>
+                            </span>
+                            <span class="switch"><input type="checkbox" name="blockDuringFocus" value="true" th:checked="${user.blockDuringFocus}"><span></span></span>
+                        </label>
+                        <button class="btn" type="submit">Save preferences</button>
+                    </form>
+
+                    <form class="card stack" th:action="@{/settings/cooling-off}" method="post">
+                        <div class="row"><span class="tile"><span class="i">hourglass_top</span></span><h2 class="h3">Cooling-off period</h2></div>
+                        <p class="caption">How long you must wait before a site can leave your always-blocked list. You can't shorten it while a removal is pending.</p>
+                        <div class="chips">
+                            <label class="chip" th:each="o : ${coolingOptions}">
+                                <input type="radio" name="minutes" th:value="${o.value()}" th:checked="${o.selected()}">
+                                <span th:text="${o.label()}">30 min</span>
+                            </label>
+                        </div>
+                        <button class="btn ghost" type="submit">Save cooling-off</button>
+                    </form>
+                </div>
+
+                <!-- ============ Secondary ============ -->
+                <div class="stack">
+                    <section class="card flush">
+                        <h2 class="h3" style="padding: 18px 18px 6px;">Your data</h2>
+                        <a class="list-row" th:href="@{/settings/export.json}">
+                            <span class="tile"><span class="i">ios_share</span></span>
+                            <span class="grow"><span class="strong">Export everything</span><br><span class="caption small">A complete JSON copy of your data</span></span>
+                            <span class="i muted">download</span>
+                        </a>
+                        <form th:action="@{/settings/sample}" method="post"
+                              data-confirm="Replace your tasks, sessions and history with three weeks of sample data? Your block lists are kept.">
+                            <button class="list-row" type="submit">
+                                <span class="tile"><span class="i">auto_graph</span></span>
+                                <span class="grow"><span class="strong">Load sample data</span><br><span class="caption small">Three weeks of realistic history to explore</span></span>
+                                <span class="i muted">chevron_right</span>
+                            </button>
+                        </form>
+                        <form th:action="@{/settings/erase}" method="post"
+                              data-confirm="Permanently erase your tasks, sessions, check-ins, urges and reviews?">
+                            <button class="list-row" type="submit">
+                                <span class="tile clay"><span class="i">delete</span></span>
+                                <span class="grow"><span class="strong" style="color: var(--clay)">Erase my history</span><br><span class="caption small">Block lists and your account stay</span></span>
+                                <span class="i muted">chevron_right</span>
+                            </button>
+                        </form>
+                    </section>
+
+                    <form class="card stack" th:action="@{/settings/password}" method="post">
+                        <h2 class="h3">Change password</h2>
+                        <div class="field"><span class="i">lock</span><input name="current" type="password" placeholder="Current password" autocomplete="current-password" required></div>
+                        <div class="field"><span class="i">key</span><input name="next" type="password" placeholder="New password (8+ characters)" autocomplete="new-password" minlength="8" required></div>
+                        <button class="btn ghost" type="submit">Update password</button>
+                    </form>
+
+                    <section class="card stack-sm">
+                        <div class="row">
+                            <span class="brand-mark"><span class="i">anchor</span></span>
+                            <div><div class="h3">Anchor</div><div class="caption small">Version 1.0.0</div></div>
+                        </div>
+                        <p class="caption small">No ads, no tracking, no selling of data. Your account is private to you.</p>
+                        <p class="caption small">Open-source notices: Inter typeface (SIL OFL 1.1), Material Icons (Apache 2.0), StevenBlack/hosts blocklist (MIT).</p>
+                        <form th:action="@{/logout}" method="post"><button class="link" type="submit">Sign out</button></form>
+                    </section>
+
+                    <details class="card">
+                        <summary class="strong" style="cursor: pointer; color: var(--clay);">Delete account</summary>
+                        <form class="stack" th:action="@{/settings/delete-account}" method="post" style="margin-top: 14px;"
+                              data-confirm="Delete your account and all of its data permanently? This cannot be undone.">
+                            <p class="caption">This permanently deletes your account and everything in it.</p>
+                            <div class="field"><span class="i">lock</span><input name="password" type="password" placeholder="Confirm with your password" autocomplete="current-password" required></div>
+                            <button class="btn danger" type="submit">Delete my account</button>
+                        </form>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('settings')}"></nav>
+<div th:replace="~{fragments/layout :: toast}"></div>
+</body>
+</html>

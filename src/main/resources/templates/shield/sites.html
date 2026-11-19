@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Blocked sites')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('shield')}"></aside>
+    <main class="main">
+        <div class="container narrow">
+
+            <div class="row">
+                <a class="icon-btn" th:href="@{/shield}" aria-label="Back"><span class="i">arrow_back</span></a>
+                <h1 class="h2">Blocked sites</h1>
+            </div>
+
+            <div class="stack-sm">
+                <div class="chips">
+                    <a class="seg" th:href="@{/shield/sites(list='FOCUS')}" th:classappend="${list.name() == 'FOCUS'} ? 'active'"><span class="i">center_focus_strong</span>Distractions</a>
+                    <a class="seg" th:href="@{/shield/sites(list='ALWAYS')}" th:classappend="${list.name() == 'ALWAYS'} ? 'active'"><span class="i">lock</span>Always blocked</a>
+                </div>
+                <p class="caption" th:if="${list.name() == 'FOCUS'}">Sites that pull you away while you work. Include them in your hosts export while you focus.</p>
+                <p class="caption" th:if="${list.name() == 'ALWAYS'}" th:text="'Sites you never want to reach. Removing one takes a ' + ${coolingText} + ' cooling-off period.'">Always</p>
+            </div>
+
+            <form class="row" th:action="@{/shield/sites}" method="post">
+                <input type="hidden" name="list" th:value="${list.name()}">
+                <div class="field grow"><span class="i">language</span><input name="domain" type="text" inputmode="url" placeholder="Add a site, e.g. youtube.com" required></div>
+                <button class="icon-btn primary" type="submit" style="width: 50px; height: 50px;" aria-label="Add"><span class="i">add</span></button>
+            </form>
+
+            <section class="stack-sm" th:if="${list.name() == 'FOCUS'}">
+                <span class="overline">Quick add</span>
+                <div class="chips">
+                    <form th:each="p, it : ${presets}" th:action="@{/shield/presets/{i}(i=${it.index})}" method="post">
+                        <button class="card tight row" type="submit" style="cursor: pointer; border-radius: 16px;">
+                            <span class="i" style="color: var(--ember)" th:text="${p.icon()}">forum</span>
+                            <span style="text-align: left;">
+                                <span class="strong small" th:text="${p.name()}">Social</span><br>
+                                <span class="caption small" th:text="${#lists.size(p.domains())} + ' sites'">10 sites</span>
+                            </span>
+                            <span class="i muted" style="font-size: 18px;">add</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="stack-sm">
+                <div class="card tight row" th:each="s : ${sites}">
+                    <span class="tile"><span class="i muted">public</span></span>
+                    <div class="grow">
+                        <div class="strong" th:text="${s.domain()}">example.com</div>
+                        <div class="caption small" th:if="${s.cooling()}">
+                            Removable in <span data-countdown th:attr="data-countdown=${s.availableAtMillis()}">--:--</span>
+                        </div>
+                        <div class="caption small" th:if="${s.ready()}" style="color: var(--clay)">Cooling-off complete. Confirm within 15 minutes.</div>
+                    </div>
+
+                    <form th:if="${s.idle()}" th:action="@{/shield/sites/{id}/remove(id=${s.id()})}" method="post"
+                          th:attr="data-confirm=${list.name() == 'ALWAYS'} ? 'Start the cooling-off period to remove ' + ${s.domain()} + '?' : null">
+                        <input type="hidden" name="list" th:value="${list.name()}">
+                        <button class="icon-btn ghost" type="submit" aria-label="Remove"><span class="i muted">close</span></button>
+                    </form>
+
+                    <form th:if="${!s.idle()}" th:action="@{/shield/sites/{id}/cancel(id=${s.id()})}" method="post">
+                        <button class="btn sm ghost" type="submit">Keep blocked</button>
+                    </form>
+                    <form th:if="${s.ready()}" th:action="@{/shield/sites/{id}/confirm(id=${s.id()})}" method="post">
+                        <button class="btn sm danger" type="submit">Remove</button>
+                    </form>
+                </div>
+
+                <div class="card empty" th:if="${#lists.isEmpty(sites)}">
+                    <span class="i">language</span>
+                    <div class="strong">No sites on this list</div>
+                    <p class="caption">Add a website above. Anchor blocks the site and its www version.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('shield')}"></nav>
+<div th:replace="~{fragments/layout :: toast}"></div>
+</body>
+</html>

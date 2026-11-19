@@ -1,0 +1,104 @@
+# ============================================================================
+#  Anchor — default (development) configuration
+#  Runs out of the box with an embedded H2 database stored in ./data
+# ============================================================================
+
+spring:
+  application:
+    name: anchor
+
+  datasource:
+    url: jdbc:h2:file:./data/anchor;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    username: sa
+    password: ""
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none          # schema is owned by Flyway
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  thymeleaf:
+    cache: false
+
+  servlet:
+    multipart:
+      enabled: false
+
+  mvc:
+    format:
+      date: iso
+      date-time: iso
+
+server:
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace: never
+  servlet:
+    session:
+      timeout: 8h
+      cookie:
+        http-only: true
+        same-site: lax
+  compression:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+anchor:
+  # Used to sign "remember me" cookies. Override in production via ANCHOR_REMEMBER_ME_KEY.
+  remember-me-key: ${ANCHOR_REMEMBER_ME_KEY:dev-only-change-me}
+  blocklist:
+    update-url: https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
+
+logging:
+  level:
+    com.anchor: INFO
+
+---
+# ============================================================================
+#  Production profile:  SPRING_PROFILES_ACTIVE=prod
+#  Requires PostgreSQL. Configure with environment variables:
+#    DATABASE_URL       e.g. jdbc:postgresql://db:5432/anchor
+#    DATABASE_USERNAME
+#    DATABASE_PASSWORD
+#    ANCHOR_REMEMBER_ME_KEY   (a long random string)
+# ============================================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  thymeleaf:
+    cache: true
+
+server:
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+logging:
+  level:
+    root: WARN
+    com.anchor: INFO

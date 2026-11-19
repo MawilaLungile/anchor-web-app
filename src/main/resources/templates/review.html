@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Evening shutdown')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('today')}"></aside>
+    <main class="main">
+        <div class="container narrow">
+            <a class="icon-btn" th:href="@{/}" aria-label="Close"><span class="i">close</span></a>
+
+            <div class="stack-sm">
+                <span class="overline">Evening shutdown</span>
+                <h1 class="h1">Close the loops. Then switch off.</h1>
+                <p class="caption" th:text="${summary}">Summary</p>
+            </div>
+
+            <section class="card row" th:if="${closed}">
+                <span class="tile mist"><span class="i">bedtime</span></span>
+                <p class="grow" th:text="${closedText}">Closed</p>
+            </section>
+
+            <form class="stack" th:unless="${closed}" th:action="@{/review}" method="post" style="gap: 24px;">
+                <section class="stack-sm">
+                    <h2 class="h3">Done today</h2>
+                    <div class="row" th:each="t : ${done}">
+                        <span class="i" style="color: var(--sage)">check_circle</span>
+                        <span th:text="${t.title}">Task</span>
+                    </div>
+                    <p class="caption" th:if="${#lists.isEmpty(done)}">Nothing ticked off today, and that's okay. Some days are for showing up.</p>
+                </section>
+
+                <section class="stack-sm" th:unless="${#lists.isEmpty(open)}">
+                    <div>
+                        <h2 class="h3">Unfinished</h2>
+                        <p class="caption small">Ticked tasks move to tomorrow. Untick anything you're letting go of.</p>
+                    </div>
+                    <label class="task" th:each="t : ${open}" style="cursor: pointer;">
+                        <input type="checkbox" name="move" th:value="${t.id}" checked style="width: 20px; height: 20px; margin: 0 8px; accent-color: var(--ember);">
+                        <span class="body"><span class="title" th:text="${t.title}">Task</span></span>
+                        <span class="pill">Tomorrow</span>
+                    </label>
+                </section>
+
+                <section class="stack-sm">
+                    <h2 class="h3">How did today feel?</h2>
+                    <div class="chips">
+                        <label class="chip" th:each="r, it : ${ratings}">
+                            <input type="radio" name="rating" th:value="${it.count}" th:checked="${it.count == 4}">
+                            <span th:text="${r}">Good</span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="stack-sm">
+                    <h2 class="h3">One thing worth remembering</h2>
+                    <div class="field"><textarea name="note" maxlength="1000" placeholder="A win, a lesson, or something you're grateful for"></textarea></div>
+                </section>
+
+                <button class="btn block" type="submit"><span class="i">bedtime</span>Shut down for the day</button>
+            </form>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('today')}"></nav>
+</body>
+</html>

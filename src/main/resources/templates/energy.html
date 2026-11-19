@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Energy check-in')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('today')}"></aside>
+    <main class="main">
+        <div class="container narrow">
+            <a class="icon-btn" th:href="@{/}" aria-label="Close"><span class="i">close</span></a>
+
+            <div class="stack-sm">
+                <span class="overline" th:text="'Energy check-in · ' + ${time}">Energy check-in</span>
+                <h1 class="h1">How's your energy right now?</h1>
+                <p class="caption" th:text="${todayText}">First check-in</p>
+            </div>
+
+            <form id="energy-form" class="stack" th:action="@{/energy}" method="post">
+                <label class="card row energy-choice" th:each="l : ${levels}" style="cursor: pointer; padding: 14px 16px;">
+                    <input type="radio" name="level" th:value="${l.value()}" class="sr-only" required>
+                    <span class="tile lg" th:style="'background:' + ${l.color()} + '22; color:' + ${l.color()}">
+                        <span class="i" style="font-size: 28px" th:text="${l.icon()}">bolt</span>
+                    </span>
+                    <span class="grow">
+                        <span class="h3" th:text="${l.name()}">Peak</span><br>
+                        <span class="caption small" th:text="${l.description()}">Description</span>
+                    </span>
+                    <span class="i picked" th:style="'color:' + ${l.color()}">check_circle</span>
+                </label>
+                <button class="btn block" type="submit">Save check-in</button>
+            </form>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('today')}"></nav>
+</body>
+</html>

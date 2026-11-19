@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-theme=${me.theme()}">
+<head th:replace="~{fragments/layout :: head('Focus')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: sidebar('focus')}"></aside>
+    <main class="main">
+        <div class="container">
+
+            <div class="page-head">
+                <div>
+                    <h1 class="h1">Focus</h1>
+                    <p class="caption">Commit to one thing. Anchor guards the time.</p>
+                </div>
+            </div>
+
+            <div class="columns">
+                <!-- ============ Primary ============ -->
+                <div class="stack">
+
+                    <!-- Running commitment -->
+                    <section class="hero night stack" th:if="${activeSession != null}" style="gap: 20px; padding: 28px 24px;">
+                        <div style="text-align: center;">
+                            <div class="overline" style="color: #A89E92;">Committed to</div>
+                            <h2 class="display" style="font-size: 22px; color: #F5EFE6; margin-top: 6px;" th:text="${activeSession.intention}">Intention</h2>
+                        </div>
+
+                        <div id="dial" class="dial" th:attr="data-start=${startMillis},data-end=${endMillis}">
+                            <svg viewBox="0 0 300 300" aria-hidden="true">
+                                <g id="ticks"></g>
+                                <circle class="track" cx="150" cy="150" r="112"></circle>
+                                <circle id="glow" class="glow" cx="150" cy="150" r="112" transform="rotate(-90 150 150)"></circle>
+                                <circle id="arc" class="arc" cx="150" cy="150" r="112" transform="rotate(-90 150 150)"></circle>
+                            </svg>
+                            <div class="readout">
+                                <div>
+                                    <div id="time" class="time">--:--</div>
+                                    <div class="small" style="color: #A89E92; margin-top: 6px;" th:text="'Ends at ' + ${endsAt}">Ends at</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center;" th:if="${activeSession.blocksDistractions}">
+                            <span class="pill sage"><span class="i" style="font-size: 16px;">gpp_good</span>Distraction list active</span>
+                        </div>
+
+                        <form th:action="@{/focus/extend}" method="post">
+                            <button class="btn block" type="submit" style="background: #2D2620; color: #F5EFE6;"><span class="i">more_time</span>Add 10 minutes</button>
+                        </form>
+
+                        <!-- End early: pause first, or give a reason -->
+                        <div class="stack" style="background: rgba(255,255,255,.04); border-radius: 18px; padding: 16px;">
+                            <p class="small" style="color: #C9BFB3;">
+                                Thinking of stopping? Urges to quit usually fade within a minute.
+                            </p>
+                            <a class="btn block sage" th:href="@{/urge(source='session')}"><span class="i">self_improvement</span>Take a 60-second pause</a>
+                            <form class="stack-sm" th:action="@{/focus/end}" method="post" data-confirm="End this commitment early?">
+                                <div class="field" style="background: #221C17; border-color: #3A322B;">
+                                    <input name="reason" type="text" maxlength="300" placeholder="Why are you stopping? (kept private)" style="color: #F5EFE6;" required>
+                                </div>
+                                <button class="btn block" type="submit" style="background: #3A231E; color: #FF9A85;">End anyway</button>
+                            </form>
+                        </div>
+
+                        <form id="complete-form" th:action="@{/focus/complete}" method="post" class="hidden"></form>
+                    </section>
+
+                    <!-- Setup -->
+                    <form class="card stack" th:if="${activeSession == null}" th:action="@{/focus/start}" method="post" style="gap: 20px; padding: 22px;">
+                        <div class="stack-sm">
+                            <span class="overline">I commit to</span>
+                            <div class="field lg">
+                                <input id="intention" name="intention" type="text" maxlength="200" th:value="${intention}"
+                                       placeholder="What will you focus on?">
+                            </div>
+                        </div>
+
+                        <div class="stack-sm" th:unless="${#lists.isEmpty(openTasks)}">
+                            <span class="caption">From today's plan</span>
+                            <div class="chips">
+                                <label class="chip" th:each="t : ${openTasks}">
+                                    <input type="radio" name="taskId" th:value="${t.id}" th:checked="${selectedTaskId == t.id}"
+                                           th:attr="data-title=${t.title},data-minutes=${t.estimateMinutes}">
+                                    <span><span class="i" th:if="${t.oneThing}">flag</span><span th:text="${#strings.abbreviate(t.title, 30)}">Task</span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="stack-sm">
+                            <span class="caption">Duration</span>
+                            <div class="chips">
+                                <label class="chip" th:each="m : ${durations}">
+                                    <input type="radio" name="minutes" th:value="${m}" th:checked="${m == defaultMinutes}">
+                                    <span th:text="${m} + ' min'">50 min</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <label class="row" style="background: var(--surface-2); border-radius: 14px; padding: 12px 14px; cursor: pointer;">
+                            <span class="tile sage"><span class="i">shield</span></span>
+                            <span class="grow">
+                                <span class="strong">Use my distraction list</span><br>
+                                <span class="caption small" th:text="${focusSiteCount} + ' sites included in your blocking export while you focus'">sites</span>
+                            </span>
+                            <span class="switch"><input type="checkbox" name="block" value="true" th:checked="${blockDefault}"><span></span></span>
+                        </label>
+                        <a class="link small" th:href="@{/shield/sites(list='FOCUS')}">Edit distraction list</a>
+
+                        <button class="btn block" type="submit" style="min-height: 56px;"><span class="i">play_arrow</span>Start commitment</button>
+                    </form>
+                </div>
+
+                <!-- ============ Secondary ============ -->
+                <div class="stack">
+                    <section class="card grid-3">
+                        <div><div class="metric" style="font-size: 20px;" th:text="${todayText}">0 min</div><div class="caption small">focused today</div></div>
+                        <div><div class="metric" style="font-size: 20px;" th:text="${keptRate}">–</div><div class="caption small">kept (30 days)</div></div>
+                        <div><div class="metric" style="font-size: 20px;" th:text="${streak}">0 days</div><div class="caption small">focus streak</div></div>
+                    </section>
+
+                    <h2 class="h3">Recent commitments</h2>
+                    <div class="card tight row" th:each="s : ${recent}" style="align-items: flex-start;">
+                        <span class="tile" th:classappend="${s.kept()} ? 'sage' : 'clay'">
+                            <span class="i" th:text="${s.kept()} ? 'check_circle' : 'timelapse'">check_circle</span>
+                        </span>
+                        <div class="grow">
+                            <div class="strong" th:text="${s.intention()}">Intention</div>
+                            <div class="caption small" th:text="${s.detail()}">Detail</div>
+                            <div class="caption small" th:if="${!s.kept() and s.reason() != null}" th:text="'“' + ${s.reason()} + '”'">Reason</div>
+                        </div>
+                    </div>
+                    <div class="card empty" th:if="${#lists.isEmpty(recent)}">
+                        <span class="i">hourglass_top</span>
+                        <div class="strong">No commitments yet</div>
+                        <p class="caption">Your kept and broken promises appear here. Honesty is the whole point.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<nav th:replace="~{fragments/layout :: tabs('focus')}"></nav>
+<div th:replace="~{fragments/layout :: toast}"></div>
+</body>
+</html>

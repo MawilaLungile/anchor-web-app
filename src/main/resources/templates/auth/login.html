@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="dark">
+<head th:replace="~{fragments/layout :: head('Sign in')}"></head>
+<body>
+<main class="auth">
+    <div class="panel">
+        <div class="row">
+            <span class="brand-mark"><span class="i">anchor</span></span>
+            <span class="brand-name">Anchor</span>
+        </div>
+        <div class="stack-sm">
+            <h1 class="h1">Welcome back.</h1>
+            <p class="caption">Sign in to pick up where you left off.</p>
+        </div>
+
+        <div class="notice bad" th:if="${param.error}">That email and password don't match. Try again.</div>
+        <div class="notice" th:if="${param.logout}">You've signed out. See you soon.</div>
+        <div class="notice" th:if="${param.deleted}">Your account and all its data have been deleted.</div>
+
+        <form class="stack" th:action="@{/login}" method="post">
+            <div class="stack-sm">
+                <label class="label" for="email">Email</label>
+                <div class="field"><span class="i">mail</span><input id="email" name="email" type="email" autocomplete="email" required autofocus></div>
+            </div>
+            <div class="stack-sm">
+                <label class="label" for="password">Password</label>
+                <div class="field"><span class="i">lock</span><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+            </div>
+            <label class="row caption"><input type="checkbox" name="remember-me"> Keep me signed in for 30 days</label>
+            <button class="btn block" type="submit">Sign in</button>
+        </form>
+
+        <p class="caption">New to Anchor? <a class="link" th:href="@{/register}">Create an account</a></p>
+    </div>
+</main>
+</body>
+</html>

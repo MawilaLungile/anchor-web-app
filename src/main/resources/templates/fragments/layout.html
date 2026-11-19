@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#14110F">
+    <meta name="description" content="Anchor: plan around your energy, make focus a commitment, and keep a clean streak.">
+    <title th:text="${title} + ' · Anchor'">Anchor</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<!-- Desktop sidebar -->
+<aside th:fragment="sidebar(active)" class="sidebar" aria-label="Main navigation">
+    <a class="brand" th:href="@{/}">
+        <span class="brand-mark"><span class="i">anchor</span></span>
+        <span>
+            <span class="brand-name">Anchor</span><br>
+            <span class="brand-tag">Attention, protected</span>
+        </span>
+    </a>
+    <a class="nav-link" th:href="@{/}" th:classappend="${active == 'today'} ? 'active'"><span class="i">today</span>Today</a>
+    <a class="nav-link" th:href="@{/focus}" th:classappend="${active == 'focus'} ? 'active'"><span class="i">center_focus_strong</span>Focus</a>
+    <a class="nav-link" th:href="@{/shield}" th:classappend="${active == 'shield'} ? 'active'"><span class="i">shield</span>Shield</a>
+    <a class="nav-link" th:href="@{/insights}" th:classappend="${active == 'insights'} ? 'active'"><span class="i">insights</span>Insights</a>
+    <a class="nav-link" th:href="@{/settings}" th:classappend="${active == 'settings'} ? 'active'"><span class="i">tune</span>Settings</a>
+
+    <div class="sidebar-footer" th:if="${me != null}">
+        <span class="avatar" th:text="${me.initials()}">A</span>
+        <div class="who">
+            <div class="strong" th:text="${me.name()}">Name</div>
+            <div class="caption small" th:text="${me.email()}">email</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="icon-btn ghost" type="submit" title="Sign out" aria-label="Sign out"><span class="i">logout</span></button>
+        </form>
+    </div>
+</aside>
+
+<!-- Phone tab bar -->
+<nav th:fragment="tabs(active)" class="tabbar" aria-label="Main navigation">
+    <a class="tab" th:href="@{/}" th:classappend="${active == 'today'} ? 'active'"><span class="i">today</span>Today</a>
+    <a class="tab" th:href="@{/focus}" th:classappend="${active == 'focus'} ? 'active'"><span class="i">center_focus_strong</span>Focus</a>
+    <a class="tab" th:href="@{/shield}" th:classappend="${active == 'shield'} ? 'active'"><span class="i">shield</span>Shield</a>
+    <a class="tab" th:href="@{/insights}" th:classappend="${active == 'insights'} ? 'active'"><span class="i">insights</span>Insights</a>
+    <a class="tab" th:href="@{/settings}" th:classappend="${active == 'settings'} ? 'active'"><span class="i">tune</span>Settings</a>
+</nav>
+
+<!-- One-off message after an action -->
+<div th:fragment="toast" th:if="${toast != null}" class="toast" role="status" th:text="${toast}">Saved</div>
+
+</body>
+</html>
